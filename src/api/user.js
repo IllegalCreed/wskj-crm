@@ -50,9 +50,9 @@ export function getUserDetail(to_user_id) {
 }
 
 // 冻结或解冻用户
-export function setFreeze(user_id) {
+export function setFreeze(to_user_id) {
   return api.post('user/setFreeze', {
-    user_id,
+    to_user_id,
     token: localStorage.getItem('token')
   })
 }

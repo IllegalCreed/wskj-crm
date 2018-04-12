@@ -1,8 +1,8 @@
 <template>
 <div class="root-container">
   <div class="header-container">
-    <Input v-model="search_content" placeholder="搜索" clearable style="width: 200px">
-      <Button slot="append" icon="ios-search"></Button>
+    <Input v-model="search_content" placeholder="搜索" style="width: 200px">
+      <Button slot="append" icon="ios-search" @click="getUserList"></Button>
     </Input>
     <Button type="primary" shape="circle" icon="plus-round" @click="createUser">新建用户</Button>
   </div>
@@ -13,8 +13,8 @@
   <Modal
     v-model="isShowNewUserModal"
     title="新建用户"
-    @on-ok="ok"
-    @on-cancel="cancel">
+    @on-ok="ok_create"
+    @on-cancel="cancel_create">
     <Form :model="createFormItem" :label-width="80">
         <FormItem label="姓名">
             <Input v-model="createFormItem.name" placeholder="请输入" style="width:200px;"></Input>
@@ -24,9 +24,7 @@
         </FormItem>
         <FormItem label="部门">
             <Select v-model="createFormItem.department" style="width:200px;">
-                <Option value="beijing">New York</Option>
-                <Option value="shanghai">London</Option>
-                <Option value="shenzhen">Sydney</Option>
+                <Option :value="item.id" :key="item.id" :name="item.id" v-for="(item, index) in user_department">{{item.name}}</Option>
             </Select>
         </FormItem>
         <FormItem label="职位">
@@ -36,11 +34,8 @@
             <Input v-model="createFormItem.pwd" placeholder="请输入" style="width:200px;"></Input>
         </FormItem>
         <FormItem label="权限">
-            <CheckboxGroup v-model="createFormItem.checkbox">
-                <Checkbox label="管理员"></Checkbox>
-                <Checkbox label="机会"></Checkbox>
-                <Checkbox label="用户"></Checkbox>
-                <Checkbox label="元数据"></Checkbox>
+            <CheckboxGroup v-model="createFormItem.permission">
+                <Checkbox :label="item.role_id" :key="item.role_id" v-for="(item, index) in roles">{{item.name}}</Checkbox>
             </CheckboxGroup>
         </FormItem>
     </Form>
@@ -48,8 +43,8 @@
   <Modal
     v-model="isShowEditUserModal"
     title="编辑用户"
-    @on-ok="ok"
-    @on-cancel="cancel">
+    @on-ok="ok_edit"
+    @on-cancel="cancel_edit">
     <Form :model="editFormItem" :label-width="80">
         <FormItem label="id">
             <p>{{editFormItem.id}}</p>
@@ -62,9 +57,7 @@
         </FormItem>
         <FormItem label="部门">
             <Select v-model="editFormItem.department" style="width:200px;">
-                <Option value="beijing">New York</Option>
-                <Option value="shanghai">London</Option>
-                <Option value="shenzhen">Sydney</Option>
+                <Option :value="item.id" :key="item.id" :name="item.id" v-for="(item, index) in user_department">{{item.name}}</Option>
             </Select>
         </FormItem>
         <FormItem label="职位">
@@ -72,15 +65,12 @@
         </FormItem>
         <FormItem label="修改密码">
             <Button v-if="!isShowChangePwd" type="primary" size="small" icon="edit" @click="ShowChangePwd">修改密码</Button>
-            <Input v-if="isShowChangePwd" v-model="editFormItem.pwd" placeholder="请输入新密码" style="width:200px;"></Input>
-            <Button v-if="isShowChangePwd" type="primary" size="small" icon="checkmark-round" @click="pwdChanged">保存</Button>
+            <Input v-if="isShowChangePwd" v-model="newPwd" placeholder="请输入新密码" style="width:200px;"></Input>
+            <Button v-if="isShowChangePwd" type="primary" size="small" icon="checkmark-round" @click="pwdChanged(editFormItem.id)">保存</Button>
         </FormItem>
         <FormItem label="权限">
-            <CheckboxGroup v-model="editFormItem.checkbox">
-                <Checkbox label="管理员"></Checkbox>
-                <Checkbox label="机会"></Checkbox>
-                <Checkbox label="用户"></Checkbox>
-                <Checkbox label="元数据"></Checkbox>
+            <CheckboxGroup v-model="editFormItem.permission">
+                <Checkbox :label="item.role_id" :key="item.role_id" v-for="(item, index) in roles">{{item.name}}</Checkbox>
             </CheckboxGroup>
         </FormItem>
     </Form>
@@ -90,6 +80,7 @@
 
 <script>
 import * as type from "../store/type";
+import * as user from "../api/user";
 import { mapActions, mapState, mapGetters } from "vuex";
 export default {
   data() {
@@ -99,6 +90,7 @@ export default {
       isShowChangePwd: false,
       isShowEditUserModal: false,
       isShowNewUserModal: false,
+      newPwd: "",
       search_content: "",
       columnsData: [
         {
@@ -128,16 +120,7 @@ export default {
         {
           title: "权限",
           key: "role",
-          width: 120,
-          render: (h, params) => {
-            return h("p", {}, () => {
-              let result = "";
-              for (let role of params.row.role) {
-                result += role.name;
-              }
-              return result;
-            });
-          }
+          width: 120
         },
         {
           title: "状态",
@@ -178,7 +161,7 @@ export default {
                 "Button",
                 {
                   props: {
-                    type: "error",
+                    type: params.row.freezeId == 0 ? "error" : "success",
                     size: "small"
                   },
                   style: {
@@ -186,11 +169,13 @@ export default {
                   },
                   on: {
                     click: () => {
-                      this.show(params.row);
+                      this.setFreeze(params.row.user_id).then(() => {
+                        this.getUserList();
+                      });
                     }
                   }
                 },
-                "冻结"
+                params.row.freezeId == 0 ? "冻结" : "解冻"
               ),
               h(
                 "Button",
@@ -212,13 +197,13 @@ export default {
         }
       ],
       createFormItem: {
-        id: 0,
+        id: -1,
         name: "",
         phone: "",
         department: "",
         position: "",
         pwd: "",
-        checkbox: []
+        permission: []
       },
       editFormItem: {
         id: 0,
@@ -226,50 +211,98 @@ export default {
         phone: "",
         department: "",
         position: "",
-        pwd: "",
-        checkbox: []
+        permission: []
       }
     };
   },
   mounted() {
     this.getUserList();
-
     // 设置当前页码，用来切换模块后返回时还是在这个页
     this.current_page_index = this.page_index + 1;
   },
   computed: {
+    ...mapGetters({
+      user_department: "user_department"
+    }),
     ...mapState({
       page_size: state => state.user.page_size,
       page_index: state => state.user.page_index,
       user_list: state => state.user.user_list,
-      user_count: state => state.user.user_count
+      user_count: state => state.user.user_count,
+      roles: state => state.user.roles
     })
   },
   methods: {
     ...mapActions({
       getUserListAction: "getUserList",
-      addOrUpdateUser: "addOrUpdateUser"
+      addOrUpdateUser: "addOrUpdateUser",
+      setFreeze: "setFreeze",
+      resetPwd: "resetPwd"
     }),
     createUser() {
+      this.createFormItem = {
+        id: -1,
+        name: "",
+        phone: "",
+        department: "",
+        position: "",
+        pwd: "",
+        permission: []
+      };
       this.isShowNewUserModal = true;
     },
-    editUser(user) {
-      this.isShowEditUserModal = true;
+    editUser(userData) {
+      this.newPwd = "";
+      user
+        .getUserDetail(userData.user_id)
+        .then(res => {
+          if (res.data.res_code == 1) {
+            this.editFormItem = {
+              id: res.data.msg.user_id,
+              name: res.data.msg.name,
+              phone: res.data.msg.phone,
+              department: res.data.msg.md_department_id,
+              position: res.data.msg.position,
+              permission: res.data.msg.role_ids
+            };
+            this.isShowEditUserModal = true;
+          } else {
+          }
+        })
+        .catch(reason => {
+          console.log(reason);
+        });
     },
     ShowChangePwd() {
       this.isShowChangePwd = true;
     },
-    pwdChanged() {
-      this.$Message.info("修改成功");
-      this.isShowChangePwd = false;
+    pwdChanged(id) {
+      this.resetPwd({ id, pwd: this.newPwd }).then(() => {
+        this.$Message.info("修改成功");
+        this.isShowChangePwd = false;
+      });
     },
-    ok() {
+    ok_create() {
+      this.addOrUpdateUser(this.createFormItem).then(() => {
+        this.getUserList();
+        this.isShowNewDataModal = false;
+        this.$Message.info("添加成功");
+      });
+    },
+    cancel_create() {
       this.isShowNewDataModal = false;
-      this.$Message.info("添加成功");
     },
-    cancel() {
-      this.isShowNewDataModal = false;
+    ok_edit() {
+      this.addOrUpdateUser(this.editFormItem).then(() => {
+        this.getUserList();
+        this.isShowEditUserModal = false;
+        this.$Message.info("修改成功");
+      });
     },
+    cancel_edit() {
+      this.isShowEditUserModal = false;
+    },
+    remove() {},
     handleChangePageIndex(page) {
       if (page != this.page_index + 1) {
         this.$store.commit(type.SET_USER_PAGE_INDEX, page - 1);

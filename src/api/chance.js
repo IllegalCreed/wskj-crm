@@ -1,7 +1,7 @@
 import api from './config'
 
 // 添加修改机会
-export function getMetadataList(chance_id, customer, estimate, real_amount, rebate, project_type, project_desc, progress, state) {
+export function addOrUpdateChance(chance_id, customer, estimate, real_amount, rebate, project_type, project_desc, progress, state) {
     return api.post('chance/addOrUpdateChance', {
         chance_id,
         customer,
@@ -25,7 +25,7 @@ export function searchChanceByCustomerName(word) {
 }
 
 // 获取机会列表
-export function getMetadataList(page_index, page_size, customer_name, state) {
+export function getChanceList(page_index, page_size, customer_name, state) {
     return api.post('chance/getList', {
         page_index, 
         page_size, 
@@ -36,7 +36,7 @@ export function getMetadataList(page_index, page_size, customer_name, state) {
 }
 
 // 获取机会详情
-export function getChanceList(chance_id) {
+export function getChanceDetail(chance_id) {
     return api.post('chance/getDetail', {
         chance_id,
         token: localStorage.getItem('token')

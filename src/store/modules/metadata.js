@@ -10,6 +10,79 @@ const state = {
   metadata: []
 }
 
+const getters = {
+  user_department: (state, getters) => {
+    let result = []
+    for (let item of state.metadata) {
+      if (item.id == 1) {
+        result.push({
+          id: -1,
+          name: "无",
+          type: item.type
+        })
+        result = result.concat(item.children);
+      }
+    }
+    return result;
+  },
+  customer_service: (state, getters) => {
+    let result = []
+    for (let item of state.metadata) {
+      if (item.id == 2) {
+        result.push({
+          id: -1,
+          name: "无",
+          type: item.type
+        })
+        result = result.concat(item.children);
+      }
+    }
+    return result;
+  },
+  customer_type: (state, getters) => {
+    let result = []
+    for (let item of state.metadata) {
+      if (item.id == 3) {
+        result.push({
+          id: -1,
+          name: "无",
+          type: item.type
+        })
+        result = result.concat(item.children);
+      }
+    }
+    return result;
+  },
+  customer_origin: (state, getters) => {
+    let result = []
+    for (let item of state.metadata) {
+      if (item.id == 4) {
+        result.push({
+          id: -1,
+          name: "无",
+          type: item.type
+        })
+        result = result.concat(item.children);
+      }
+    }
+    return result;
+  },
+  track_progress: (state, getters) => {
+    let result = []
+    for (let item of state.metadata) {
+      if (item.id == 5) {
+        result.push({
+          id: -1,
+          name: "无",
+          type: item.type
+        })
+        result = result.concat(item.children);
+      }
+    }
+    return result;
+  },
+}
+
 const actions = {
   getMetadataList({
     state,
@@ -123,5 +196,6 @@ const mutations = {
 export default {
   state,
   actions,
-  mutations
+  mutations,
+  getters
 }
