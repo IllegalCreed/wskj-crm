@@ -2,31 +2,13 @@
 const path = require('path')
 const utils = require('./utils')
 const config = require('../config')
-<<<<<<< HEAD
 const vueLoaderConfig = require('./vue-loader.conf')
-=======
->>>>>>> origin/master
 const { VueLoaderPlugin } = require('vue-loader')
 
 function resolve (dir) {
   return path.join(__dirname, '..', dir)
 }
 
-<<<<<<< HEAD
-=======
-const createLintingRule = () => ({
-  test: /\.(js|vue)$/,
-  // eslint-loader 4.x only supports eslint ^6||^7; replace with eslint-webpack-plugin if linting is re-enabled
-  loader: 'eslint-webpack-plugin',
-  enforce: 'pre',
-  include: [resolve('src'), resolve('test')],
-  options: {
-    formatter: require('eslint-friendly-formatter'),
-    emitWarning: !config.dev.showEslintErrorsInOverlay
-  }
-})
-
->>>>>>> origin/master
 module.exports = {
   context: path.resolve(__dirname, '../'),
   entry: {
@@ -57,7 +39,6 @@ module.exports = {
     rules: [
       {
         test: /\.vue$/,
-<<<<<<< HEAD
         use: [
           {
             loader: 'vue-loader',
@@ -68,27 +49,8 @@ module.exports = {
             options: {
               prefix: false
             }
-=======
-        loader: 'vue-loader',
-        options: {
-          loaders: utils.cssLoaders({
-            sourceMap: process.env.NODE_ENV !== 'production'
-              ? config.dev.cssSourceMap
-              : config.build.productionSourceMap,
-            extract: process.env.NODE_ENV === 'production'
-          }),
-          cssSourceMap: process.env.NODE_ENV !== 'production'
-            ? config.dev.cssSourceMap
-            : config.build.productionSourceMap,
-          cacheBusting: config.dev.cacheBusting,
-          transformToRequire: {
-            video: ['src', 'poster'],
-            source: 'src',
-            img: 'src',
-            image: 'xlink:href'
->>>>>>> origin/master
           }
-        }
+        ]
       },
       {
         test: /\.js$/,

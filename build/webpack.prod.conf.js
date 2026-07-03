@@ -24,7 +24,7 @@ const webpackConfig = merge(baseWebpackConfig, {
       usePostCSS: true
     })
   },
-  devtool: config.build.productionSourceMap ? 'source-map' : false,
+  devtool: config.build.productionSourceMap ? config.build.devtool : false,
   output: {
     path: config.build.assetsRoot,
     filename: utils.assetsPath('js/[name].[contenthash].js'),
@@ -32,37 +32,19 @@ const webpackConfig = merge(baseWebpackConfig, {
     clean: true
   },
   optimization: {
-<<<<<<< HEAD
     moduleIds: 'deterministic',
     minimizer: [
       new TerserPlugin({
         parallel: true
-=======
-    minimizer: [
-      new TerserPlugin({
-        parallel: true,
-        terserOptions: {
-          compress: {
-            warnings: false
-          }
-        }
->>>>>>> origin/master
       }),
       new CssMinimizerPlugin()
     ],
     splitChunks: {
-<<<<<<< HEAD
-      cacheGroups: {
-        vendor: {
-          test: /[\\/]node_modules[\\/]/,
-          name: 'vendor',
-=======
       chunks: 'all',
       cacheGroups: {
         vendor: {
           test: /[\\/]node_modules[\\/]/,
-          name: 'vendors',
->>>>>>> origin/master
+          name: 'vendor',
           chunks: 'all'
         }
       }
@@ -73,20 +55,10 @@ const webpackConfig = merge(baseWebpackConfig, {
     new webpack.DefinePlugin({
       'process.env': env
     }),
-<<<<<<< HEAD
-    // extract css into its own file
-=======
->>>>>>> origin/master
     new MiniCssExtractPlugin({
       filename: utils.assetsPath('css/[name].[contenthash].css'),
       chunkFilename: utils.assetsPath('css/[id].[contenthash].css')
     }),
-<<<<<<< HEAD
-    // generate dist index.html with correct asset hash for caching.
-    // you can customize output by editing /index.html
-    // see https://github.com/ampedandwired/html-webpack-plugin
-=======
->>>>>>> origin/master
     new HtmlWebpackPlugin({
       filename: process.env.NODE_ENV === 'testing'
         ? 'index.html'
@@ -97,31 +69,16 @@ const webpackConfig = merge(baseWebpackConfig, {
         removeComments: true,
         collapseWhitespace: true,
         removeAttributeQuotes: true
-<<<<<<< HEAD
-        // more options:
-        // https://github.com/kangax/html-minifier#options-quick-reference
-      }
-    }),
-    // copy custom static assets
-=======
       },
       scriptLoading: 'defer'
     }),
->>>>>>> origin/master
     new CopyWebpackPlugin({
       patterns: [
         {
           from: path.resolve(__dirname, '../static'),
-<<<<<<< HEAD
           to: config.build.assetsSubDirectory,
           globOptions: { ignore: ['**/.*'] },
           noErrorOnMissing: true
-=======
-          to: config.dev.assetsSubDirectory,
-          globOptions: {
-            ignore: ['.*']
-          }
->>>>>>> origin/master
         }
       ]
     })

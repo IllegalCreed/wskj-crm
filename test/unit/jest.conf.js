@@ -12,13 +12,8 @@ module.exports = {
     '^@/(.*)$': '<rootDir>/src/$1'
   },
   transform: {
-<<<<<<< HEAD
-    '^.+\\.js$': '<rootDir>/node_modules/babel-jest',
-    '.*\\.(vue)$': '<rootDir>/node_modules/@vue/vue2-jest'
-=======
     '^.+\\.js$': 'babel-jest',
     '.*\\.(vue)$': '@vue/vue2-jest'
->>>>>>> origin/master
   },
   snapshotSerializers: ['jest-serializer-vue'],
   setupFiles: ['<rootDir>/test/unit/setup'],
