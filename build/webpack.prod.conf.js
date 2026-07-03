@@ -24,7 +24,7 @@ const webpackConfig = merge(baseWebpackConfig, {
       usePostCSS: true
     })
   },
-  devtool: config.build.productionSourceMap ? 'source-map' : false,
+  devtool: config.build.productionSourceMap ? config.build.devtool : false,
   output: {
     path: config.build.assetsRoot,
     filename: utils.assetsPath('js/[name].[contenthash].js'),
@@ -32,14 +32,10 @@ const webpackConfig = merge(baseWebpackConfig, {
     clean: true
   },
   optimization: {
+    moduleIds: 'deterministic',
     minimizer: [
       new TerserPlugin({
-        parallel: true,
-        terserOptions: {
-          compress: {
-            warnings: false
-          }
-        }
+        parallel: true
       }),
       new CssMinimizerPlugin()
     ],
@@ -48,7 +44,7 @@ const webpackConfig = merge(baseWebpackConfig, {
       cacheGroups: {
         vendor: {
           test: /[\\/]node_modules[\\/]/,
-          name: 'vendors',
+          name: 'vendor',
           chunks: 'all'
         }
       }
@@ -80,10 +76,9 @@ const webpackConfig = merge(baseWebpackConfig, {
       patterns: [
         {
           from: path.resolve(__dirname, '../static'),
-          to: config.dev.assetsSubDirectory,
-          globOptions: {
-            ignore: ['.*']
-          }
+          to: config.build.assetsSubDirectory,
+          globOptions: { ignore: ['**/.*'] },
+          noErrorOnMissing: true
         }
       ]
     })

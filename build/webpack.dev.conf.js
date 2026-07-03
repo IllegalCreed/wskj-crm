@@ -7,7 +7,7 @@ const path = require('path')
 const baseWebpackConfig = require('./webpack.base.conf')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin')
+const FriendlyErrorsPlugin = require('@soda/friendly-errors-webpack-plugin')
 const portfinder = require('portfinder')
 
 const HOST = process.env.HOST
@@ -18,13 +18,16 @@ const devWebpackConfig = merge(baseWebpackConfig, {
   module: {
     rules: utils.styleLoaders({ sourceMap: config.dev.cssSourceMap, usePostCSS: true })
   },
-  devtool: 'eval-cheap-module-source-map',
+  // eval-cheap-module-source-map is faster for development
+  devtool: config.dev.devtool,
 
+  // these devServer options should be customized in /config/index.js
   devServer: {
-    historyApiFallback: {
-      rewrites: [
-        { from: /.*/, to: path.posix.join(config.dev.assetsPublicPath, 'index.html') },
-      ],
+    client: {
+      logging: 'warn',
+      overlay: config.dev.errorOverlay
+        ? { warnings: false, errors: true }
+        : false
     },
     hot: true,
     static: false,
@@ -32,22 +35,28 @@ const devWebpackConfig = merge(baseWebpackConfig, {
     host: HOST || config.dev.host,
     port: PORT || config.dev.port,
     open: config.dev.autoOpenBrowser,
-    client: {
-      logging: 'warn',
-      overlay: config.dev.errorOverlay
-        ? { warnings: false, errors: true }
-        : false,
-    },
     devMiddleware: {
-      publicPath: config.dev.assetsPublicPath,
+      publicPath: config.dev.assetsPublicPath
     },
     proxy: config.dev.proxyTable,
+    historyApiFallback: {
+      rewrites: [
+        { from: /.*/, to: path.posix.join(config.dev.assetsPublicPath, 'index.html') },
+      ],
+    },
+    watchFiles: {
+      options: {
+        poll: config.dev.poll,
+      }
+    }
+  },
+  optimization: {
+    moduleIds: 'named'
   },
   plugins: [
     new webpack.DefinePlugin({
       'process.env': require('../config/dev.env')
     }),
-    new webpack.HotModuleReplacementPlugin(),
     new HtmlWebpackPlugin({
       filename: 'index.html',
       template: 'index.html',
@@ -58,9 +67,8 @@ const devWebpackConfig = merge(baseWebpackConfig, {
         {
           from: path.resolve(__dirname, '../static'),
           to: config.dev.assetsSubDirectory,
-          globOptions: {
-            ignore: ['.*']
-          }
+          globOptions: { ignore: ['**/.*'] },
+          noErrorOnMissing: true
         }
       ]
     })

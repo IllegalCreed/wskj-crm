@@ -9,19 +9,17 @@
   ],
   "plugins": [
     "@vue/babel-plugin-transform-vue-jsx",
-    "@babel/plugin-transform-runtime"
+    "@babel/plugin-transform-runtime",
+    "@babel/plugin-proposal-class-properties"
   ],
   "env": {
     "test": {
-      "presets": [
-        ["@babel/preset-env", {
-          "targets": { "node": "current" }
-        }]
-      ],
+      "presets": [["@babel/preset-env", { "targets": { "node": "current" } }]],
       "plugins": [
         "@vue/babel-plugin-transform-vue-jsx",
         "@babel/plugin-transform-modules-commonjs",
-        "dynamic-import-node"
+        "dynamic-import-node",
+        "@babel/plugin-proposal-class-properties"
       ]
     }
   }
