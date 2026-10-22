@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.26.0",
-    "axios": "^1.16.0",
+    "axios": "^1.20.0",
     "es6-promise": "^4.2.8",
     "iview": "^2.14.3",
     "vue": "^2.7.16",
